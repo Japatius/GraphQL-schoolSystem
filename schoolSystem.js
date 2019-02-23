@@ -12,21 +12,38 @@ const schema = gql`
       addressStreet: String!,
       addressCity: String!,
       addressCountry: String!,
-      addressPostNumber: String!       
-      ): NewStudentResponse!,
-      
+      addressPostNumber: String!
+      birthday: String!,
+      alias: String!       
+      ): NewStudentResponse!
+
     createCourse(
       description: String!,
+      teacher: String!,
       amountOfCredits: Float!,
       deadline: String
-    ): NewCourseResponse!
-  }
+      ): NewCourseResponse!
+
+   
+    updateStudent(
+      email: String!,
+      name: iName!,
+      addressStreet: String,
+      addressCity: String,
+      addressCountry: String,
+      addressPostNumber: String  
+      ): UpdateResponse!
+    }
 
   type NewStudentResponse {
     success: Boolean!    
   }
   
   type NewCourseResponse {
+    success: Boolean!
+  }
+  
+  type UpdateResponse {
     success: Boolean!
   }
 
@@ -54,8 +71,8 @@ const schema = gql`
   }
 
   input iName {
-    firstName: String!,
-    familyName: String!
+      firstName: String!,
+      familyName: String!
   }
 
   type Address {
@@ -68,16 +85,17 @@ const schema = gql`
   type Course {
       id: ID!,
       description: String!,
+      teacher: String!
       amountOfCredits: Float!,
       deadline: String
   }
 
   type Grade {
-    id: ID!,
-    gradingDate: String!,
-    points: Int,
-    student: Student!,
-    course: String!
+      id: ID!,
+      gradingDate: String!,
+      points: Int,
+      student: Student!,
+      course: String!
   }
 `;
 
@@ -167,24 +185,28 @@ let courses = [
     {
         id: "1",
         description: "How to Build a Lawnmower",
+        teacher: "John Deere",
         amountOfCredits: "5",
         deadline: ""
     },
     {
         id: "2",
         description: "Barbequeing the American Way",
+        teacher: "Donald Trump",
         amountOfCredits: "5",
         deadline: ""
     },
     {
         id: "3",
-        description: "Entrepreneurship",
+        description: "DIY Tesla car",
+        teacher: "Elon Musk",
         amountOfCredits: "5",
         deadline: ""
     },
     {
         id: "4",
         description: "Hacking the CIA",
+        teacher: "Elliot Alderson",
         amountOfCredits: "5",
         deadline: ""
     },
@@ -194,21 +216,19 @@ let courses = [
 const resolvers = {
   Query: {
     student: (parent, args, context, info) => {      
-      return students.find(u => u.id === args.id);
+        return students.find(u => u.id === args.id);
     },
     students: (parents, args, context, info) => {
-      return students;
+        return students;
     },
     course: (parents, args, context, info) => {
-        const course = courses.find(i => i.id === args.id);
-        return course; 
+        return courses.find(i => i.id === args.id);
     },
     courses: (parents, args, context, info) => {
         return courses;
     },
     grade: (parents, args, context, info) => {
-      const grade = grades.find(i => i.id === args.id);
-      return grade; 
+        return grades.find(i => i.id === args.id);
     },
     grades: (parents, args, context, info) => {
         return grades; 
@@ -226,9 +246,9 @@ const resolvers = {
         addressPostNumber: args.addressPostNumber,
         addressCity: args.addressCity,
         addressCountry: args.addressCountry,
-        birthday: null,
-        alias: null
-      }
+        birthday: args.birthday,
+        alias: args.alias
+      };
       students.push(newStudent);
       return { success: true}
     },
@@ -236,8 +256,25 @@ const resolvers = {
       let newCourse = {
         id: ((courses.length)+1).toString(),
         description: args.description,
-        amountOfCredits: null,
-        deadline: null
+        amountOfCredits: args.amountOfCredits,
+        deadline: args.deadline
+      };
+      courses.push(newCourse);
+      return { success: true }
+    },
+    updateStudent: (parent, args, context, info) => {
+      let studentData = {
+        id: args.id,
+        email: args.email,
+        firstName: args.name.firstName,
+        familyName: args.name.familyName,
+        addressStreet: args.addressStreet,
+        addressPostNumber: args.addressPostNumber,
+        addressCity: args.addressCity,
+        addressCountry: args.addressCountry,
+        birthday: args.birthday,
+        alias: args.alias
+
       }
     }
   },

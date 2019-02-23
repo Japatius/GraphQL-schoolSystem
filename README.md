@@ -44,4 +44,17 @@ mutation studentCreation {
     { success }
 }
 ```
+Create new course
+```
+mutation newCourse {
+  createCourse(
+    description:"example description",
+    amountOfCredits:5,
+    deadline:"12-12-2019",
+    teacher:"Dr. Example"
+  )
+  {success}
+}
+```
+
 
