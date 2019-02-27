@@ -17,14 +17,11 @@ const resolvers = {
           return courses;
       },
       grade: (parents, args, context, info) => {
-          return grades.find(i => i.id === args.id);
+          return grades.filter(s => s.studentId === args.studentId && s.courseId === args.courseId);
       },
       grades: (parents, args, context, info) => {
           return grades; 
       },
-      gradeByStudent: (parents, args, context, info) => {
-          return grades.filter(s => s.studentId === args.studentId && s.courseId === args.courseId);
-      }
       
     },
 
@@ -33,12 +30,8 @@ const resolvers = {
           let newStudent = {
             id: ((students.length)+1).toString(),
             email: args.email,
-            firstName: args.name.firstName,
-            familyName: args.name.familyName,
-            addressStreet: args.addressStreet,
-            addressPostNumber: args.addressPostNumber,
-            addressCity: args.addressCity,
-            addressCountry: args.addressCountry,
+            name: args.name,
+            class: args.class,
             birthday: args.birthday,
             alias: args.alias
           };
@@ -46,7 +39,7 @@ const resolvers = {
           return { success: true}
         },
         updateStudent: (parents, args, context, info) => {
-            let updatedStudent = students.findIndex(sId => sId.Id === args.id);
+            let updatedStudent = students.findIndex(sId => sId.id === args.id);
             if (updatedStudent >= 0) {
                 students[updatedStudent] = args;
                 return {
@@ -69,36 +62,38 @@ const resolvers = {
           courses.push(newCourse);
           return { success: true }
         },
-        createGrading: (parents, args, context, info) => {
-            let newGrade = args;
-            const findStudent = students.findIndex(s => s.id == args.studentId);
-            const findCourse = courses.findIndex(c => c.id == args.courseId);
-            newGrade.id = (grades.length + 1).toString();
-            if (findCourse >= 0 && findStudent >= 0) {
-                grades.push(newGrade);
-                return { success: true };
+        updateCourse: (parent, args, context, info) => {
+            let updatedCourse = courses.findIndex(cId => cId.id === args.id);
+            if (updatedCourse >= 0) {
+                courses[updatedCourse] = args;
+                return {
+                    success: true
+                };
             } else {
-                return { success: false };
+                return {
+                    success: false
+                };
             }
+        },
+        createGrading: (parents, args, context, info) => {
+            let newGrading = {
+                id: ((grades.length)+1).toString(),
+                points: args.points,
+                student: students.find(x => x.id === args.studentId),
+                course: courses.find(x => x.id === args.courseId)
+            };
+            grades.push(newGrading);
+            return {success: true};
+        },
+        updateGrading: (parents, args, context, info) => {
+            let points = grades.find(g => g.id === args.id);
+            grades.points = args.points;
+            return {
+                success: true
+            };
+
         }
     },
-    Student: {
-        name: (parent, args, context, info) =>
-        {
-          return {
-            firstName: parent.firstName,
-            familyName: parent.familyName
-          }
-        },
-        address: (parent, args, context, info) => {
-          return {
-            street: parent.addressStreet,
-            postalCode: parent.addressPostNumber,
-            city: parent.addressCity,
-            country: parent.addressCountry
-          }
-        },
-      },
 };
 
 module.exports = resolvers;

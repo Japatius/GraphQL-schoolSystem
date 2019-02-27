@@ -4,11 +4,8 @@ const schemas = gql`
   type Mutation {    
     createStudent(
       email: String!,
-      name: iName!,
-      addressStreet: String!,
-      addressCity: String!,
-      addressCountry: String!,
-      addressPostNumber: String!
+      name: String!,
+      class: String!
       birthday: String!,
       alias: String!       
       ): NewStudentResponse!
@@ -16,28 +13,40 @@ const schemas = gql`
     createCourse(
       description: String!,
       teacher: String!,
-      amountOfCredits: Float!,
+      amountOfCredits: Int!,
       deadline: String
       ): NewCourseResponse!
 
     createGrading(
-        studentId: Float!,
-        courseId: Float!,
+        studentId: ID!,
+        courseId: ID!,
         gradingDate: String!,
-        points: Float,
+        points: Int,
     ): NewGradingResponse!
 
     updateStudent(
       id: ID!,
       email: String!,
-      name: iName!,
-      addressStreet: String,
-      addressCity: String,
-      addressCountry: String,
-      addressPostNumber: String,
+      name: String!,
+      class: String
       birthday: String,
       alias: String   
       ): UpdateResponse!
+
+    updateCourse(
+      id: ID!,
+      description: String!
+      teacher: String!,
+      amountOfCredits: Int!,
+      deadline: String
+      ):UpdateResponse!
+
+    updateGrading(
+      id: ID!,
+      gradingDate: String!,
+      points: Int!
+    ):UpdateResponse!
+
     }
 
   type NewStudentResponse {
@@ -61,51 +70,33 @@ const schemas = gql`
     students: [Student!]!,
     course(id: ID!): Course!,
     courses: [Course!]!,
-    grade(id: ID!): Grade!,
+    grade(studentId: Int!, courseId: Int!): [Grade!]!,
     grades: [Grade!]!,
-    gradeByStudent(studentId: Float!, courseId: Float!): [Grade!]!
   }
 
   type Student {
     id: ID!,
     email: String!,
-    name: Name!,
-    address: Address!,
-    birthday: String,
+    name: String!,
+    class: String!,
+    birthday: String!,
     alias: String #nickname
-  }
-
-  type Name {
-      firstName: String!,
-      familyName: String!
-  }
-
-  input iName {
-      firstName: String!,
-      familyName: String!
-  }
-
-  type Address {
-      street: String!,
-      city: String!,
-      postalCode: Int
-      country: String!
   }
 
   type Course {
       id: ID!,
       description: String!,
       teacher: String!
-      amountOfCredits: Float!,
+      amountOfCredits: Int!,
       deadline: String
   }
 
   type Grade {
       id: ID!,
       gradingDate: String!,
-      points: Float,
-      studentId: Float!,
-      courseId: Float!,
+      points: Int,
+      student: Student,
+      course: Course,
   }
 `;
 
